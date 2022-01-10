@@ -20,16 +20,13 @@ void read_input(string& input_stream, BinaryTree *circuit) {
         }
 
         Port *new_port_ptr = new_port(new_port_str);
-
         string position;
         string father;
 
         circuit_txt >> position;
         circuit_txt >> father;
 
-        string operation = father.substr(0, 3);
         int identity = (father[5] - '0') + (father[4] - '0')*10 + (father[3] - '0')*100;
-
-        insert_port(circuit, new_port_ptr, position, operation, identity);
+        insert_port(circuit, new_port_ptr, position, op_convert(father), identity);
     }
 }

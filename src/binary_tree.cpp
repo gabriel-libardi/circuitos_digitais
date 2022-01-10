@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string>
+#include <cstring>
 #include <iostream>
 #include "binary_tree.hpp"
 using namespace std;
@@ -23,9 +24,26 @@ bool identity(bool byte) {
 }
 
 
+gate op_convert(string& operation) {
+    string operation_str = operation.substr(0, 3);
+
+    if (operation_str == "INP") {
+        return INP;
+    } else if (operation_str == "AND") {
+        return AND;
+    } else if (operation_str == "OR-") {
+        return OR;
+    } else if (operation_str == "NOT") {
+        return NOT;
+    } else {
+        return INP;
+    }
+}
+
+
 Port *new_port(string& port_str) {
     Port *new_port = (Port *)malloc(sizeof(Port));
-    (new_port->operation).insert(0, port_str, 0, 3);
+    new_port->operation = op_convert(port_str);
     new_port->ID = (port_str[5] - '0') + (port_str[4] - '0')*10 + (port_str[3] - '0')*100;
     new_port->value = 0;
 
@@ -62,7 +80,6 @@ void erase_nodes(Node *subtree) {
     if (subtree) {
         erase_nodes(subtree->left_subtree);
         erase_nodes(subtree->right_subtree);
-        (subtree->data_ptr->operation).~string();
         free(subtree->data_ptr);
         free(subtree);
     }
@@ -87,13 +104,13 @@ Node *get_head(BinaryTree *binary_tree) {
 
 
 bool _compute_circuit(Node *head) {
-    if (head->data_ptr->operation == "INP") {
+    if (head->data_ptr->operation == INP) {
         return head->data_ptr->value;
 
-    } else if (head->data_ptr->operation == "AND") {
+    } else if (head->data_ptr->operation == AND) {
         return _compute_circuit(head->left_subtree) && _compute_circuit(head->right_subtree);
 
-    } else if (head->data_ptr->operation == "OR-") {
+    } else if (head->data_ptr->operation == OR) {
         return _compute_circuit(head->left_subtree) || _compute_circuit(head->right_subtree);
 
     } else {
@@ -108,11 +125,12 @@ bool compute_circuit(BinaryTree *circuit) {
 
 
 
-Node *search_tree(Node *circuit, string& father_op, int ID) {
+Node *search_tree(Node *circuit, gate father_op, int ID) {
     if (circuit == NULL) {
         return NULL;
+    } 
 
-    } else if (circuit->data_ptr->operation == father_op && circuit->data_ptr->ID == ID) {
+    if (father_op == circuit->data_ptr->operation && circuit->data_ptr->ID == ID) {
         return circuit;
 
     } else {
@@ -124,8 +142,8 @@ Node *search_tree(Node *circuit, string& father_op, int ID) {
 }
 
 
-void insert_port(BinaryTree *circuit, Port *new_port, string& position, string& father_op, int ID) {
-    if (new_port->operation == "INP") {
+void insert_port(BinaryTree *circuit, Port *new_port, string& position, gate father_op, int ID) {
+    if (new_port->operation == INP) {
         string trash_str;
         bool input;
 
