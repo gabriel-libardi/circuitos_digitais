@@ -62,6 +62,7 @@ void erase_nodes(Node *subtree) {
     if (subtree) {
         erase_nodes(subtree->left_subtree);
         erase_nodes(subtree->right_subtree);
+        (subtree->data_ptr->operation).~string();
         free(subtree->data_ptr);
         free(subtree);
     }
